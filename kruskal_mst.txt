@@ -1,0 +1,77 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+const int MAX = 100;  // Maximum number of vertices
+int parent[MAX];  // Array to store the parent of each vertex
+
+// Function to find the parent of a node (with path compression)
+int find(int v) {
+    if (parent[v] == -1) return v;  // If the node is its own parent, return it
+    return parent[v] = find(parent[v]);  // Path compression: recursively find the parent of the node
+}
+
+// Function to unite two sets
+void unite(int a, int b) {
+    parent[find(a)] = find(b);  // Set the parent of one node to the parent of the other node, merging the sets
+}
+
+int main() {
+    int V, E;  // Number of vertices and edges in the graph
+    cout << "Enter number of vertices: ";
+    cin >> V;  // Input the number of vertices
+    cout << "Enter number of edges: ";
+    cin >> E;  // Input the number of edges
+
+    vector<pair<int, pair<int, int>>> edges;  // To store edges as {weight, {src, dest}}
+
+    cout << "Enter edges (src dest weight):\n";
+    for (int i = 0; i < E; i++) {
+        int src, dest, weight;
+        cin >> src >> dest >> weight;  // Input each edge with its source, destination, and weight
+        edges.push_back({weight, {src, dest}});  // Store edges in the format {weight, {src, dest}}
+    }
+
+    // Initialize each node as its own parent (disjoint sets initialization)
+    for (int i = 0; i < V; i++)
+        parent[i] = -1;
+
+    // Sort edges by weight in ascending order (for Kruskal's algorithm)
+    sort(edges.begin(), edges.end());
+
+    int mstCost = 0;  // Variable to store the total cost of the MST
+    cout << "Edges in Minimum Spanning Tree:\n";
+    // Iterate through each edge
+    for (auto edge : edges) {
+        int weight = edge.first;  // The weight of the edge
+        int u = edge.second.first;  // The source node of the edge
+        int v = edge.second.second;  // The destination node of the edge
+
+        // If u and v are in different sets (no cycle), include the edge in the MST
+        if (find(u) != find(v)) {
+            unite(u, v);  // Union of the sets containing u and v
+            mstCost += weight;  // Add the weight of the edge to the MST cost
+            cout << u << " - " << v << ": " << weight << endl;  // Output the edge included in MST
+        }
+    }
+
+    // Output the total cost of the Minimum Spanning Tree
+    cout << "Total Minimum Cost: " << mstCost << endl;
+    return 0;
+}
+
+Enter number of vertices: 4
+Enter number of edges: 5
+Enter edges (src dest weight):
+0 1 10
+0 2 6
+0 3 5
+1 3 15
+2 3 4
+Edges in Minimum Spanning Tree:
+2 - 3: 4
+0 - 3: 5
+0 - 1: 10
+Total Minimum Cost: 19

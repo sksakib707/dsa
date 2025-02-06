@@ -1,0 +1,140 @@
+#include <iostream>  
+#include <vector>  
+#include <set>  
+#include <algorithm>  
+
+#define INFINITY 1e5  // Large value to represent infinity  
+
+// Structure to store an edge with weight, child node, and parent node  
+struct tripair {  
+    int weight, child_node, parent_node;  
+    
+    // Custom comparison operator to ensure edges are sorted by weight  
+    bool operator<(const tripair &other) const {  
+        if (this->weight != other.weight)  
+            return this->weight < other.weight;  
+        if (this->child_node != other.child_node)  
+            return this->child_node < other.child_node;  
+        return this->parent_node < other.parent_node;  
+    }  
+};  
+
+// Function to implement Prim's Algorithm  
+void PrimsAlgorithm(std::vector<std::pair<int, int>> adj[],  
+                    std::vector<int> &vis, std::set<tripair> &stored_set,  
+                    std::vector<std::pair<int, int>> &result, int *total_path_cost) {  
+    while (!stored_set.empty()) {  
+        // Extract the smallest edge from the set  
+        tripair node = *stored_set.begin();  
+        stored_set.erase(stored_set.begin());  
+
+        int weight = node.weight;  
+        int parent = node.parent_node;  
+        int child_node = node.child_node;  
+
+        // If the node is not visited, add it to MST  
+        if (!vis[child_node]) {  
+            vis[child_node] = 1;  // Mark as visited  
+            
+            if (parent != -1) {  // Ignore the first node since it has no parent  
+                result.push_back({parent, child_node});  // Store the MST edge  
+                *total_path_cost += weight;  // Add the edge weight to total cost  
+            }  
+            
+            // Insert all adjacent edges of the current node into the set  
+            for (auto &itr : adj[child_node]) {  
+                if (!vis[itr.first])  
+                    stored_set.insert({itr.second, itr.first, child_node});  
+            }  
+        }  
+    }  
+}
+
+int main()  
+{  
+    int n, e;  
+    std::cout << "Enter the number of nodes and edges: ";  
+    std::cin >> n >> e;  
+
+    std::vector<std::pair<int, int>> adj[n];  // Adjacency list  
+
+    std::cout << "Enter edges in format (node1 node2 weight):\n";  
+    for (int i = 0; i < e; i++) {  
+        int u, v, w;  
+        std::cin >> u >> v >> w;  
+
+        if (u == v)  // Ignore self-loops  
+            continue;  
+
+        bool is_parallel = false;  
+
+        // Check if edge already exists (handle parallel edges by keeping the minimum weight)  
+        for (auto &item : adj[u]) {  
+            if (item.first == v) {  
+                is_parallel = true;  
+                item.second = std::min(item.second, w);  // Keep minimum weight  
+                break;  
+            }  
+        }  
+        if (!is_parallel)  
+            adj[u].push_back({v, w});  
+
+        is_parallel = false;  
+        for (auto &item : adj[v]) {  
+            if (item.first == u) {  
+                is_parallel = true;  
+                item.second = std::min(item.second, w);  
+                break;  
+            }  
+        }  
+        if (!is_parallel)  
+            adj[v].push_back({u, w});  
+    }  
+
+    // Initialize required data structures  
+    std::vector<int> vis(n, 0);  // Visited array  
+    std::set<tripair> stored_set;  // Min-heap (set) for choosing minimum weight edge  
+    std::vector<std::pair<int, int>> result;  // Stores edges of MST  
+    int total_path_cost = 0;  
+
+    std::cout << "Enter the source node: ";  
+    int source;  
+    std::cin >> source;  
+
+    // Insert the source node into the set with weight 0 (as starting point)  
+    stored_set.insert({0, source, -1});  
+
+    // Call Prim's Algorithm function  
+    PrimsAlgorithm(adj, vis, stored_set, result, &total_path_cost);  
+
+    // Output the resulting Minimum Spanning Tree (MST)  
+    std::cout << "The Minimum Spanning Tree (MST) is:\n";  
+    for (auto &item : result) {  
+        std::cout << item.first << " --> " << item.second << std::endl;  
+    }  
+
+    std::cout << "Total MST cost is: " << total_path_cost << std::endl;  
+    return 0;  
+}
+
+
+enter the number of node and edges: 6 10
+enter the node--->node-->value:
+0 4 7
+4 2 3
+2 3 2
+0 2 8
+0 1 6
+0 1 5
+0 3 4
+1 5 3
+1 5 2
+3 5 3
+enter the source: 0
+the MST is:
+0 --> 3
+3 --> 2
+2 --> 4
+3 --> 5
+5 --> 1
+total MST cost is: 14

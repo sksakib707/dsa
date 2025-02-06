@@ -1,0 +1,63 @@
+#include <iostream>
+using namespace std;
+
+// Function to calculate the maximum value that can be obtained in a knapsack of capacity W
+int knapsack(int W, int wt[], int val[], int n)  
+{  
+    // Create a 2D array dp to store the maximum value for each subproblem
+    int dp[n + 1][W + 1];  
+
+    // Initialize the dp array. dp[i][w] will hold the maximum value for i items and knapsack capacity w
+    // Base condition: If there are no items (i = 0) or capacity is 0 (w = 0), the value is 0.
+    for (int i = 0; i <= n; i++)  
+        for (int w = 0; w <= W; w++)  
+            if (i == 0 || w == 0)  // If no items or no capacity, value is 0
+                dp[i][w] = 0;  
+            else if (wt[i - 1] <= w)  // If the current item can be included in the knapsack
+                // Maximize the value by either including or excluding the item
+                dp[i][w] = max(val[i - 1] + dp[i - 1][w - wt[i - 1]], dp[i - 1][w]);  
+            else  
+                // If the current item cannot be included, carry forward the value from the previous row
+                dp[i][w] = dp[i - 1][w];  
+
+    // The result will be in the bottom-right cell of the dp array, which represents n items and capacity W
+    return dp[n][W];  
+}  
+
+int main()  
+{  
+    int n, W;  
+    cout << "Enter number of items: ";  
+    cin >> n;  // Input number of items
+
+    int val[n], wt[n];  // Arrays to store values and weights of items
+
+    cout << "Enter weight capacity of knapsack: ";  
+    cin >> W;  // Input the capacity of the knapsack
+
+    cout << "Enter values and weights of items:\n";  
+    // Input the value and weight for each item
+    for (int i = 0; i < n; i++)  
+    {  
+        cout << "Item " << i + 1 << " - Value: ";  
+        cin >> val[i];  // Input the value of item i
+        cout << "Weight: ";  
+        cin >> wt[i];  // Input the weight of item i
+    }  
+
+    // Call the knapsack function to calculate the maximum value that can be carried in the knapsack
+    cout << "Maximum value in Knapsack = " << knapsack(W, wt, val, n) << endl;  
+    return 0;  
+}
+
+
+Enter number of items: 3
+Enter weight capacity of knapsack: 50
+Enter values and weights of items:
+Item 1 - Value: 60
+Weight: 10
+Item 2 - Value: 100
+Weight: 20
+Item 3 - Value: 120
+Weight: 30
+Maximum value in Knapsack = 220

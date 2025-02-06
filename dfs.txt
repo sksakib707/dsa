@@ -1,0 +1,69 @@
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+// Function to perform DFS traversal
+// It visits all the nodes reachable from the source node in a depth-first manner
+void DFS(int node, vector<int> adj[], vector<int> &vis, vector<int> &result) {
+    vis[node] = 1;  // Mark the current node as visited
+    result.push_back(node);  // Add the current node to the result list (this stores the DFS traversal order)
+
+    // Visit each neighbor of the current node
+    for (auto &neighbor : adj[node]) {
+        // If the neighbor hasn't been visited, perform DFS on it
+        if (!vis[neighbor]) {  
+            DFS(neighbor, adj, vis, result);  // Recursive DFS call on the neighbor
+        }
+    }
+}
+
+int main() {
+    cout << "Enter the number of nodes & edges: ";
+    int n, e;
+    cin >> n >> e;  // Input number of nodes and edges
+
+    vector<int> adj[n];  // Create an adjacency list for the graph
+    vector<int> vis(n, 0);  // Visited array to keep track of visited nodes (initially all 0)
+    vector<int> result;  // Stores the DFS traversal order
+
+    cout << "Enter edges (node1 -> node2):" << endl;
+    // Input the edges of the graph
+    for (int i = 0; i < e; i++) {
+        int u, v;
+        cin >> u >> v;
+        adj[u].push_back(v);  // Add an edge from node u to node v
+        adj[v].push_back(u);  // Add an edge from node v to node u (undirected graph)
+    }
+
+    int source;
+    cout << "Enter the source node: ";
+    cin >> source;  // Input the source node for DFS
+
+    DFS(source, adj, vis, result);  // Start the DFS traversal from the source node
+
+    // Output the DFS traversal order
+    cout << "DFS Traversal Order:" << endl;
+    for (auto item : result) {
+        cout << item << " ";  // Print each node in the DFS traversal order
+    }
+    cout << endl;
+
+    return 0;
+}
+
+enter the number node && edges:7 11
+enter the node ---> node:
+0 1
+0 3
+0 4
+1 2
+1 4
+2 4
+2 5
+2 6
+5 6
+4 5
+3 4
+enter the source: 0
+[0, 1, 2, 4, 5, 6, 3]

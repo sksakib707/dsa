@@ -1,0 +1,102 @@
+#include <iostream>  
+#include <vector>  
+#include <queue>  
+
+using namespace std;  
+
+// Function to perform BFS traversal
+// This function processes each node, explores its neighbors, and adds unvisited nodes to the queue
+void BFS(int source, int n, vector<int> adj[],  
+         vector<int> &vis, queue<int> &q,  
+         vector<int> &result)  
+{  
+    // Iterate through all adjacent nodes of the current node
+    for (auto &item_adj : adj[source])  
+    {  
+        // If the adjacent node has not been visited
+        if (!vis[item_adj])  
+        {  
+            // Mark the node as visited
+            vis[item_adj] = 1;  
+            // Add the node to the queue for future processing
+            q.push(item_adj);  
+            // Add the node to the result list for BFS traversal order
+            result.push_back(item_adj);  
+        }  
+    }  
+}
+
+int main()  
+{  
+    cout << "Enter the number of nodes & edges: ";  
+    int n, e;  
+    cin >> n >> e;  // Input number of nodes and edges
+
+    vector<int> adj[n];  // Adjacency list to store graph
+    queue<int> q;  // Queue to store nodes for BFS processing
+    vector<int> vis(n, 0);  // Visited array to keep track of visited nodes
+    vector<int> result;  // Vector to store the BFS traversal order
+
+    cout << "Enter edges (node1 -> node2):" << endl;  
+    // Input the edges of the graph
+    for (int i = 0; i < e; i++)  
+    {  
+        int u, v;  
+        cin >> u >> v;  
+        adj[u].push_back(v);  // Add an edge from u to v
+        adj[v].push_back(u);  // Add an edge from v to u (undirected graph)
+    }  
+
+    int source;  
+    cout << "Enter the source node: ";  
+    cin >> source;  // Input the source node for BFS
+
+    // Initialize BFS traversal
+    q.push(source);  // Push the source node to the queue
+    vis[source] = 1;  // Mark the source node as visited
+    result.push_back(source);  // Add source to the BFS result
+
+    // Perform BFS
+    while (!q.empty())  
+    {  
+        int curr = q.front();  // Get the node at the front of the queue
+        q.pop();  // Remove the node from the queue
+        BFS(curr, n, adj, vis, q, result);  // Call BFS to process its neighbors
+    }  
+
+    // Output the BFS traversal order
+    cout << "BFS Traversal Order:" << endl;
+    for (auto item : result)  
+    {  
+        cout << item << " ";  // Print each node in the BFS order
+    }  
+    cout << endl;
+
+    return 0;
+}
+
+
+
+
+
+enter the number of nodes && edges: 7 11
+enter node ---> node:
+0 1
+0 3
+0 4
+1 2
+1 4
+2 4
+2 5
+2 6
+5 6
+4 5
+3 4
+enter the source node: 0
+0
+1
+3
+4
+2
+5
+6

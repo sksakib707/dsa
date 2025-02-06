@@ -1,0 +1,111 @@
+#include <iostream>
+#include <stack>
+#include <vector>
+
+// First DFS function: Used to fill the stack with nodes in the order of their finishing times
+void firstDFS(int node, std::vector<int> adj[], std::vector<int>& vis, std::stack<int>& s) {
+    vis.at(node) = 1;  // Mark the node as visited
+    // Explore all unvisited neighbors of the current node
+    for (auto& itr : adj[node]) {
+        if (!vis[itr]) {  // If the neighbor hasn't been visited
+            firstDFS(itr, adj, vis, s);  // Perform DFS on the neighbor
+        }
+    }
+    // Push the node onto the stack when all its neighbors have been explored (finishing time)
+    s.push(node);
+}
+
+// Second DFS function: Used to explore the strongly connected components (SCCs)
+void secondDFS(int node, std::vector<int> adjT[], std::vector<int>& vis, std::vector<int>& scc) {
+    vis.at(node) = 1;  // Mark the node as visited
+    scc.push_back(node);  // Add the node to the current SCC
+    // Explore all unvisited neighbors of the current node in the transposed graph
+    for (auto& itr : adjT[node]) {
+        if (!vis[itr]) {  // If the neighbor hasn't been visited
+            secondDFS(itr, adjT, vis, scc);  // Perform DFS on the neighbor
+        }
+    }
+}
+
+int main() {
+    int n, m;
+    std::cout << "Enter number of nodes: ";
+    std::cin >> n;  // Input number of nodes
+    std::cout << "Enter the number of edges: ";
+    std::cin >> m;  // Input number of edges
+
+    std::vector<int> adj[n];  // Adjacency list for the original graph
+    std::cout << "Enter the (u --> v) pairs representing directed edges: " << std::endl;
+    // Input the edges of the directed graph
+    for (int i = 0; i < m; i++) {
+        int u, v;
+        std::cin >> u >> v;
+        adj[u].push_back(v);  // Add the edge from u to v
+    }
+
+    std::vector<int> vis(n, 0);  // Visited array to track visited nodes during DFS
+    std::stack<int> s;  // Stack to store nodes in the order of finishing times in the first DFS
+
+    // Perform DFS on each node to fill the stack with nodes in the order of their finishing times
+    for (int i = 0; i < n; i++) {
+        if (!vis[i]) {  // If the node has not been visited
+            firstDFS(i, adj, vis, s);  // Perform DFS from this node
+        }
+    }
+
+    // Create the transposed graph (reverse the direction of all edges)
+    std::vector<int> adjT[n];  // Transposed adjacency list
+    for (int i = 0; i < n; i++) {
+        vis[i] = 0;  // Reset visited array for second DFS
+        for (auto& itr : adj[i]) {
+            adjT[itr].push_back(i);  // Reverse the direction of the edge (i --> itr becomes itr --> i)
+        }
+    }
+
+    int cscc = 0;  // Count of strongly connected components (SCCs)
+    // Process nodes from the stack (by decreasing finishing time order)
+    while (!s.empty()) {
+        int node = s.top();
+        s.pop();
+        std::vector<int> scc;  // Stores the nodes of the current SCC
+        // If the node has not been visited in the transposed graph, perform DFS to find SCC
+        if (!vis[node]) {
+            cscc++;  // Increment SCC count
+            secondDFS(node, adjT, vis, scc);  // Perform DFS in the transposed graph
+            std::cout << "SCC: ";
+            for (auto& k : scc) {
+                std::cout << k << " ";  // Print the current SCC
+            }
+            std::cout << std::endl;
+        }
+        scc.clear();  // Clear the current SCC list for the next SCC
+    }
+
+    // Output the total number of SCCs found
+    std::cout << "The number of SCCs is: " << cscc << std::endl;
+
+    return 0;
+}
+
+
+
+
+enter the number of nodes && edges: 8 10
+enter node ---> node:
+0 1
+1 2
+2 0
+2 3
+3 4
+4 5
+5 6
+4 7
+6 4
+6 7
+enter the source node: 0
+[{0, 2, 1 }]
+{3 }
+{4, 6, 5 }
+{7 }
+]
+the scc count are: 4
